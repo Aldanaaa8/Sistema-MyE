@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Pérdida{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Eliminar Pérdida</h2>
+    <p>¿Estás seguro de que deseas eliminar la pérdida de <strong>{{ perdida.producto.nombre }}</strong> de <strong>{{ perdida.cantidad }}</strong> unidades ocurrida el <strong>{{ perdida.fecha }}</strong>?</p>
+    
+    <form method="post" action="{% url 'eliminar_perdida' perdida.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{% url 'lista_perdidas' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock content %}

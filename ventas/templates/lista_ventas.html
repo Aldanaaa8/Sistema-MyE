@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Ventas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Ventas</h2>
+    
+    <form method="post" class="mb-4" action="#">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3">
+                <label for="{{ form.fecha.id_for_label }}" class="form-label">Fecha</label>
+                {{ form.fecha }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.producto.id_for_label }}" class="form-label">Producto</label>
+                {{ form.producto }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.precio.id_for_label }}" class="form-label">Precio</label>
+                {{ form.precio }}
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.stock.id_for_label }}" class="form-label">Stock Inicial</label>
+                {{ form.stock }}
+            </div>
+            <div class="col-md-3 d-flex align-items-end mt-3">
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end mt-3">
+                <a href="{% url 'ver_stock' %}" class="btn btn-primary">Ver Stock</a>
+            </div>
+            <div class="col-md-3 d-flex align-items-end mt-3">
+                <a href="{% url 'lista_perdidas' %}" class="btn btn-primary">Perdidas</a> 
+            </div>
+        </div>
+    </form>
+
+    <h3>Lista de Productos</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.tipo.nombre }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>
+                    <a href="{% url 'editar_producto' producto.pk %}" class="btn btn-sm btn-warning">Modificar</a>
+                    <a href="{% url 'eliminar_producto' producto.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 
+{% endblock content %}

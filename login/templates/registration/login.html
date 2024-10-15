@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>INICIO DE SESIÓN</h1>
+
+    <hr>
+
+ <!-- Mostrar mensajes de error generales -->
+   {% if messages  %}
+        <div class="alert alert-danger" >
+             {% for message in messages %} 
+                <p >{{ message }}</p>
+             {% endfor %}  
+            
+        </div>
+    {% endif %}  
+
+   
+    <form method="post" action="">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Ingresar">
+    </form>
+{% endblock content %} 
+

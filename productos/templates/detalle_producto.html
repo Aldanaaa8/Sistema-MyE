@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Detalle de Producto</h2>
+<p>Nombre: {{ producto.nombre }}</p>
+<p>Tipo: {{ producto.tipo.nombre }}</p>
+<p>Precio: {{ producto.precio }}</p>
+<a href="{% url 'editar_producto' producto.pk %}">Editar</a>
+<form method="post" action="{% url 'eliminar_producto' producto.pk %}">
+    {% csrf_token %}
+    <button type="submit">Eliminar</button>
+</form>
+<a href="{% url 'lista_productos' %}">Volver a la lista</a>
+{% endblock %}

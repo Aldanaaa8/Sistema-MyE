@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Agregar Producto para {{ proveedor.nombre }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+</form>
+<a href="{% url 'detalle_proveedor' proveedor.pk %}">Cancelar</a>
+{% endblock %}

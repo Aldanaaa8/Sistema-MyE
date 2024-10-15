@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock de Productos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Stock de Productos</h2>
+    
+    <form method="post" action="{% url 'ver_stock' %}">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>
+                        <input type="number" name="stock_{{ producto.pk }}" class="form-control" value="{{ producto.stockproducto_set.first.cantidad }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Actualizar Stock</button>
+    </form>
+    
+    <a href="{% url 'lista_productos' %}" class="btn btn-secondary mt-3">Volver a la lista de productos</a>
+</div>
+{% endblock content %}
+

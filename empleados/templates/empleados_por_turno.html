@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Empleados por Turno{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Empleados por Turno</h2>
+    
+    <h3>Turno Mañana</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado_turno in empleados_mañana %}
+            <tr>
+                <td>{{ empleado_turno.empleado.nombre }}</td>
+                <td>{{ empleado_turno.empleado.apellido }}</td>
+                <td>{{ empleado_turno.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Turno Tarde</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado_turno in empleados_tarde %}
+            <tr>
+                <td>{{ empleado_turno.empleado.nombre }}</td>
+                <td>{{ empleado_turno.empleado.apellido }}</td>
+                <td>{{ empleado_turno.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

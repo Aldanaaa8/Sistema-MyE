@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Historial de Ventas</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Venta ID</th>
+        <th>Empleado</th>
+        <th>Fecha</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for venta in ventas %}
+        {% for detalle in venta.detalles.all %}
+          <tr>
+            {% if forloop.first %}
+              <td rowspan="{{ venta.detalles.count }}">{{ venta.id }}</td>
+              <td rowspan="{{ venta.detalles.count }}">{{ venta.empleado }}</td>
+              <td rowspan="{{ venta.detalles.count }}">{{ venta.fecha }}</td>
+            {% endif %}
+            <td>{{ detalle.producto }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>{{ detalle.precio_unitario }}</td>
+            <td>{{ detalle.subtotal }}</td>
+            
+            {% if forloop.first %}
+              <td rowspan="{{ venta.detalles.count }}">
+                <ul>
+                  {% for pago in venta.formapagoxventas_set.all %}
+                    <li>{{ pago.forma_pago }}: {{ pago.monto }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+              <td rowspan="{{ venta.detalles.count }}">{{ venta.total }}</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  <a href="{% url 'vista_ventas' %}" class="btn btn-primary mt-3">Nueva Venta</a>
+{% endblock %}
+
+

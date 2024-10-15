@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Ventas{% endblock %}
+
+{% block head %}
+    {% load static %}
+    {{ block.super }}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <form id="buscarProductoForm" class="form-inline mb-4">
+                <input type="text" id="codigoProductoInput" class="form-control mr-2" placeholder="Buscar producto por ID...">
+                <button type="button" class="btn btn-primary" onclick="buscarProducto()">Buscar</button>
+            </form>
+            <section class="pos-section">
+                <div class="pos-header mb-2">
+                    <form method="POST" action="{% url 'limpiar_carrito'  %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-cancel">Cancelar Venta</button>
+                    </form>
+                    
+                    
+                </div>
+                <div class="pos-table table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Descuento</th>
+                                <th>Subtotal</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if productos_en_carrito %}
+                                {% for item in productos_en_carrito %}
+                                <tr id="producto_{{ item.id }}">
+                                    <td>{{ item.nombre }} <span class="text-muted">Stock: {{ item.stock }}</span></td>
+                                    <td>${{ item.precio }}</td>
+                                    <td>
+                                        <input type="text" name="cantidad_{{ item.id }}" value="{{ item.cantidad }}" step="1" class="form-control" min="1" onchange="actualizarCarrito('{{ item.id }}')">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="descuento_{{ item.id }}" value="{{ item.descuento }}" step="1" class="form-control" min="0" max="100" onchange="actualizarCarrito('{{ item.id }}')">
+                                    </td>
+                                    <td id="subtotal_{{ item.id }}">${{ item.subtotal }}</td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="eliminarProducto('{{ item.id }}')">Eliminar</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="6">No hay productos en el carrito.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'historial_ventas' %}" class="btn btn-secondary mt-3">Ver Resumen de la Venta</a>
+            <aside class="payment-summary">
+                <div class="summary-header mb-4">
+                    <h3>TOTAL: $<span class="form-control mb-4" id="total_venta" readonly>{{ total_venta }}</span></h3>
+                </div>
+
+                <form method="POST" action="{% url 'cobrar_venta' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="venta_id" value="{{ venta.id }}">
+                    <button type="submit">Cobrar</button>
+                </form>
+                
+                
+                
+            </aside>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+
+    // Actualizar el carrito cuando cambian cantidad o descuento
+    function actualizarCarrito(productoId) {
+        let cantidadInput = document.querySelector(`input[name="cantidad_${productoId}"]`);
+        let descuentoInput = document.querySelector(`input[name="descuento_${productoId}"]`);
+
+        let cantidad = parseFloat(cantidadInput.value.replace(',', '.'));
+        let descuento = parseFloat(descuentoInput.value.replace(',', '.'));
+
+        fetch("/ventas/actualizar_carrito/", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': productoId,
+                'cantidad': cantidad,
+                'descuento': descuento,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('#total_venta').innerText = `$${data.total.toFixed(2)}`;
+            document.querySelector(`#subtotal_${productoId}`).innerText = `$${data.subtotal.toFixed(2)}`;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Eliminar un producto del carrito
+    function eliminarProducto(productoId) {
+        fetch("{% url 'eliminar_producto_carrito' %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': productoId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`#producto_${productoId}`).remove();
+                document.querySelector('#total_venta').innerText = `$${data.total.toFixed(2)}`;
+            } else {
+                console.error('Error al eliminar el producto');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Buscar producto por ID y agregarlo al carrito
+    function buscarProducto() {
+        const codigoProducto = document.getElementById('codigoProductoInput').value;
+
+        fetch("/ventas/agregar_al_carrito/", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': codigoProducto,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();  // Si se agregó correctamente, recarga la página
+            } else {
+                console.error('Error al agregar producto:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    
+    
+</script>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block title %}Gestión de Ventas{% endblock %}
+
+{% block head %}
+    {% load static %}
+    {{ block.super }}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <form id="buscarProductoForm" class="form-inline mb-4">
+                <input type="text" id="codigoProductoInput" class="form-control mr-2" placeholder="Buscar producto por ID...">
+                <button type="button" class="btn btn-primary" onclick="buscarProducto()">Buscar</button>
+            </form>
+            <section class="pos-section">
+                <div class="pos-header mb-2">
+                    <form method="POST" >
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-cancel">Cancelar Venta</button>
+                    </form> 
+                </div>
+                <div class="pos-table table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Descuento</th>
+                                <th>Subtotal</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if productos_en_carrito %}
+                                {% for item in productos_en_carrito %}
+                                <tr id="producto_{{ item.id }}">
+                                    <td>{{ item.nombre }} <span class="text-muted">Stock: {{ item.stock }}</span></td>
+                                    <td>${{ item.precio }}</td>
+                                    <td>
+                                        <input type="text" name="cantidad_{{ item.id }}" value="{{ item.cantidad }}" step="1" class="form-control" min="1" onchange="actualizarCarrito('{{ item.id }}')">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="descuento_{{ item.id }}" value="{{ item.descuento }}" step="1" class="form-control" min="0" max="100" onchange="actualizarCarrito('{{ item.id }}')">
+                                    </td>
+                                    <td id="subtotal_{{ item.id }}">${{ item.subtotal }}</td>
+                                    <td>
+                                        <button class="btn btn-danger" onclick="eliminarProducto('{{ item.id }}')">Eliminar</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="6">No hay productos en el carrito.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'historial_ventas' %}" class="btn btn-secondary mt-3">Ver Resumen de la Venta</a>
+            <aside class="payment-summary">
+                <div class="summary-header mb-4">
+                    <h3>TOTAL: $<span class="form-control mb-4" id="total_venta" readonly>{{ total_venta }}</span></h3>
+                </div>
+
+                <form id="formaPagoForm">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" id="venta_id" value="{{ venta.id }}">
+                    <!-- Campo para ingresar el monto en pesos -->
+                    <div class="form-group mb-3">
+                        <label for="monto">Monto a pagar:</label>
+                        <input type="text" id="monto_input" name="monto" required min="0" step="0.01" class="form-control" placeholder="Monto Total" value="{{ total_venta }}">
+                    </div>
+                    <!-- Campo oculto para la forma de pago -->
+                    <input type="hidden" id="forma_pago_input" name="forma_pago" value="1">
+                    
+                    <!-- Botones para seleccionar la forma de pago -->
+                    <div class="payment-options mb-4">
+                        <button type="button" class="btn btn-success btn-block btn-payment" onclick="setFormaPago(1)">Efectivo</button>
+                        <button type="button" class="btn btn-primary btn-block btn-payment" onclick="setFormaPago(2)">Tarjeta de Crédito</button>
+                        <button type="button" class="btn btn-warning btn-block btn-payment" onclick="setFormaPago(3)">Tarjeta de Débito</button>
+                        <button type="button" class="btn btn-info btn-block btn-payment" onclick="setFormaPago(4)">Transferencia Bancaria</button>
+                    </div>
+                    
+                    
+                    
+                    <!-- Botón para enviar la forma de pago -->
+                    
+                    <button type="button" class="btn btn-info" onclick="agregarFormaPago()">Agregar Forma de Pago</button>
+                    <button type="button" class="btn btn-success mt-3" onclick="cobrarVenta()">Cobrar</button>
+                </form>
+                
+                
+                
+            </aside>
+        </div>
+    </div>
+</div>
+<script>
+    function setFormaPago(id) {
+        document.getElementById('forma_pago_input').value = id;
+    }
+    
+    function agregarFormaPago() {
+        const formaPagoForm = document.getElementById('formaPagoForm');
+        const formaPagoData = new FormData(formaPagoForm);
+    
+        // Verificar que el token CSRF esté presente
+        const csrfToken = formaPagoData.get('csrfmiddlewaretoken');
+        if (!csrfToken) {
+            console.error('CSRF token no encontrado');
+            return;
+        }
+    
+        fetch("{% url 'agregar_forma_pago' venta.id %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formaPagoData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Forma de pago agregada con éxito');
+                document.getElementById('monto_input').value = '';
+            } else {
+                console.error('Error al agregar forma de pago:', data.message);
+            }
+        })
+        .catch(error => console.error('Error en la solicitud:', error));
+    }
+    
+    
+
+
+    // Actualizar el carrito cuando cambian cantidad o descuento
+    function actualizarCarrito(productoId) {
+        let cantidadInput = document.querySelector(`input[name="cantidad_${productoId}"]`);
+        let descuentoInput = document.querySelector(`input[name="descuento_${productoId}"]`);
+
+        let cantidad = parseFloat(cantidadInput.value.replace(',', '.'));
+        let descuento = parseFloat(descuentoInput.value.replace(',', '.'));
+
+        fetch("/ventas/actualizar_carrito/", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': productoId,
+                'cantidad': cantidad,
+                'descuento': descuento,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('#total_venta').innerText = `$${data.total.toFixed(2)}`;
+            document.querySelector(`#subtotal_${productoId}`).innerText = `$${data.subtotal.toFixed(2)}`;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Eliminar un producto del carrito
+    function eliminarProducto(productoId) {
+        fetch("{% url 'eliminar_producto_carrito' %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': productoId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`#producto_${productoId}`).remove();
+                document.querySelector('#total_venta').innerText = `$${data.total.toFixed(2)}`;
+            } else {
+                console.error('Error al eliminar el producto');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Buscar producto por ID y agregarlo al carrito
+    function buscarProducto() {
+        const codigoProducto = document.getElementById('codigoProductoInput').value;
+
+        fetch("/ventas/agregar_al_carrito/", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'producto_id': codigoProducto,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();  // Si se agregó correctamente, recarga la página
+            } else {
+                console.error('Error al agregar producto:', data.error);
+            }
+        })
+        .catch(error => console.error('Error en el fetch:', error));
+    }
+
+    function cobrarVenta() {
+        const ventaId = document.getElementById('venta_id').value;  // Asegúrate de que el input hidden con el ID de la venta esté presente
+    
+        fetch("{% url 'finalizar_venta' %}", {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'venta_id': ventaId  // Pasar el ID de la venta al backend
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                console.log('Venta cobrada exitosamente');
+                location.reload();  // Recargar la página o redirigir según tu lógica
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error('Error al procesar la solicitud:', error));
+    }
+    
+    
+    </script>
+{% endblock %}   {% endcomment %}

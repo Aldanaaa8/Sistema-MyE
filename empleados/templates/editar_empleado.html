@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Empleado{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Empleado</h2>
+    
+    <form method="post" action="{% url 'editar_empleado' empleado.pk %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" value="{{ empleado.nombre }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" name="apellido" class="form-control" id="apellido" value="{{ empleado.apellido }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" id="email" value="{{ empleado.email }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" name="telefono" class="form-control" id="telefono" value="{{ empleado.telefono }}">
+            </div>
+            <div class="col-md-3">
+                <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                <input type="date" name="fecha_ingreso" class="form-control" id="fecha_ingreso" value="{{ empleado.fecha_ingreso }}" required>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock content %}

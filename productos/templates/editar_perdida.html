@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Pérdida{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Editar Pérdida</h2>
+    
+    <form method="post" action="{% url 'editar_perdida' perdida.pk %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-4">
+                <label for="producto" class="form-label">Producto</label>
+                <select name="producto" class="form-control" id="producto" required>
+                    <option value="">Seleccione un producto</option>
+                    {% for producto in productos %}
+                        <option value="{{ producto.pk }}" {% if producto.pk == perdida.producto.pk %}selected{% endif %}>{{ producto.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" name="cantidad" class="form-control" id="cantidad" value="{{ perdida.cantidad }}" required>
+            </div>
+            
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" name="fecha" class="form-control" id="fecha" value="{{ perdida.fecha }}" required>
+            </div>
+            
+            <div class="col-md-12 mt-3">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a href="{% url 'lista_perdidas' %}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock content %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Empleados{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Empleados</h2>
+
+    <!-- Botón para abrir el modal -->
+    <button type="button" class="btn btn-primary mb-4" data-toggle="modal" data-target="#agregarEmpleadoModal">
+        Agregar Empleado
+    </button>
+
+    <!-- Modal para agregar empleado y usuario -->
+    <div class="modal fade" id="agregarEmpleadoModal" tabindex="-1" role="dialog" aria-labelledby="agregarEmpleadoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="agregarEmpleadoModalLabel">Agregar Nuevo Empleado</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" action="{% url 'nuevo_empleado' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" name="nombre" class="form-control" id="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="apellido">Apellido</label>
+                            <input type="text" name="apellido" class="form-control" id="apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input type="text" name="telefono" class="form-control" id="telefono">
+                        </div>
+                        <div class="form-group">
+                            <label for="fecha_ingreso">Fecha de Ingreso</label>
+                            <input type="date" name="fecha_ingreso" class="form-control" id="fecha_ingreso" required>
+                        </div>
+                        <hr>
+                        <h5>Crear Cuenta de Usuario</h5>
+                        <div class="form-group">
+                            <label for="username">Nombre de Usuario</label>
+                            <input type="text" name="username" class="form-control" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Contraseña</label>
+                            <input type="password" name="password" class="form-control" id="password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Empleado</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Empleados -->
+    <h3>Lista de Empleados</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Fecha de Ingreso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado.nombre }}</td>
+                <td>{{ empleado.apellido }}</td>
+                <td>{{ empleado.email }}</td>
+                <td>{{ empleado.telefono }}</td>
+                <td>{{ empleado.fecha_ingreso }}</td>
+                <td>
+                    <a href="{% url 'editar_empleado' empleado.pk %}" class="btn btn-sm btn-warning">Modificar</a>
+                    <a href="{% url 'eliminar_empleado' empleado.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Scripts de Bootstrap para que el modal funcione -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block title %}Lista de Empleados{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Empleados</h2>
+    
+    <form method="post" class="mb-4" action="{% url 'nuevo_empleado' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" required>
+            </div>
+            <div class="col-md-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" name="apellido" class="form-control" id="apellido" required>
+            </div>
+            <div class="col-md-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" id="email" required>
+            </div>
+            <div class="col-md-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="text" name="telefono" class="form-control" id="telefono">
+            </div>
+            <div class="col-md-3">
+                <label for="fecha_ingreso" class="form-label">Fecha de Ingreso</label>
+                <input type="date" name="fecha_ingreso" class="form-control" id="fecha_ingreso" required>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <a href="{% url 'empleados_por_turno' %}" class="btn btn-primary">Turno</a>
+            </div>
+        </div>
+    </form>
+
+    <h3>Lista de Empleados</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Fecha de Ingreso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for empleado in empleados %}
+            <tr>
+                <td>{{ empleado.nombre }}</td>
+                <td>{{ empleado.apellido }}</td>
+                <td>{{ empleado.email }}</td>
+                <td>{{ empleado.telefono }}</td>
+                <td>{{ empleado.fecha_ingreso }}</td>
+                <td>
+                    <a href="{% url 'editar_empleado' empleado.pk %}" class="btn btn-sm btn-warning">Modificar</a>
+                    <a href="{% url 'eliminar_empleado' empleado.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %} {% endcomment %}

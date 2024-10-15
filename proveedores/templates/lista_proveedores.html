@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Proveedores{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Proveedores</h2>
+    
+    <form method="post" class="mb-4" action="{% url 'nuevo_proveedor' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-3">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
+                <input type="text" name="{{ form.nombre.name }}" class="form-control" id="{{ form.nombre.id_for_label }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.direccion.id_for_label }}" class="form-label">Dirección</label>
+                <input type="text" name="{{ form.direccion.name }}" class="form-control" id="{{ form.direccion.id_for_label }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono</label>
+                <input type="text" name="{{ form.telefono.name }}" class="form-control" id="{{ form.telefono.id_for_label }}" required>
+            </div>
+            <div class="col-md-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                <input type="email" name="{{ form.email.name }}" class="form-control" id="{{ form.email.id_for_label }}" required>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+        </div>
+    </form>
+
+    <h3>Lista de Proveedores</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for proveedor in proveedores %}
+            <tr>
+                <td>{{ proveedor.nombre }}</td>
+                <td>{{ proveedor.direccion }}</td>
+                <td>{{ proveedor.telefono }}</td>
+                <td>{{ proveedor.email }}</td>
+                <td>
+                    <a href="{% url 'editar_proveedor' proveedor.pk %}" class="btn btn-sm btn-warning">Modificar</a>
+                    <a href="{% url 'eliminar_proveedor' proveedor.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

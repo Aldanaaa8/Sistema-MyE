@@ -1,0 +1,98 @@
+        /* Estilos para el botón de menú */
+        .menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #111;
+            z-index: 1;
+        }
+
+        .menu-toggle {
+            font-size: 30px;
+            background: none;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            z-index: 2;
+        }
+
+        .menu-toggle:hover {
+            color: #0f0;
+        }
+
+        /* Estilos para el sidebar */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 3;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 20px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #0f0;
+            color: black;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 30px;
+        }
+
+        /* Para que el sidebar esté activo */
+        .sidebar.active {
+            width: 250px;
+        }
+
+        /* Estilos para el contenido principal */
+        .main-content {
+            transition: margin-left 0.5s;
+            padding: 16px;
+            margin-left: 0;
+        }
+
+        .sidebar.active ~ .main-content {
+            margin-left: 250px;
+        }
+
+        form button {
+            background: none;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 20px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        form button:hover {
+            background-color: #0f0;
+            color: black;
+        }
+
+        /* Estilos responsivos */
+        @media screen and (max-height: 450px) {
+            .sidebar { padding-top: 15px; }
+            .sidebar a { font-size: 18px; }
+        }
